@@ -41,6 +41,12 @@ pub fn main(init: std.process.Init) !void {
             if (event.type == sdl.SDL_EVENT_QUIT) {
                 quit = true;
             }
+
+            if (event.type == sdl.SDL_EVENT_KEY_UP) {
+                if (event.key.scancode == sdl.SDL_SCANCODE_ESCAPE) {
+                    quit = true;
+                }
+            }
         }
 
         _ = sdl.SDL_SetRenderDrawColor(renderer, 33, 33, 43, 255);
