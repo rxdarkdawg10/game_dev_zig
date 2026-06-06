@@ -16,6 +16,7 @@ pub fn build(b: *std.Build) void {
     // Link with system libc and SDL3
     exe.root_module.link_libc = true;
     exe.root_module.linkSystemLibrary("sdl3", .{});
+    exe.root_module.linkSystemLibrary("SDL3_ttf", .{});
 
     b.installArtifact(exe);
 

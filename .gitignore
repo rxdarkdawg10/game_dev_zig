@@ -1,3 +1,4 @@
 .zig-cache/
 zig-out/bin/
 src/example.zig
+assets/fonts/UbuntuMono-R.ttf

@@ -1,5 +1,6 @@
 const std = @import("std");
 const user = @import("internal/mobs/player.zig").Player;
+const utils = @import("internal/helpers/utils.zig");
 const Io = std.Io;
 
 const sdl = @import("internal/graphics/sdl.zig").c;
@@ -54,6 +55,7 @@ pub fn main(init: std.process.Init) !void {
 
         _ = player.update(renderer);
 
+        _ = try utils.renderText("Hello World", renderer, 32.0, sdl.SDL_Color{ .r = 255, .g = 255, .b = 255, .a = 255 }, utils.Vec2{ .x = 0.0, .y = 0.0 });
         _ = sdl.SDL_RenderPresent(renderer);
     }
 }
