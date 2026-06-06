@@ -32,3 +32,29 @@ pub fn renderText(text: []const u8, renderer: ?*sdl.SDL_Renderer, size: f32, col
 
     _ = sdl.SDL_RenderTexture(renderer, texture, null, &dest_rect);
 }
+
+pub fn renderSpritesheet(renderer: ?*sdl.SDL_Renderer, sprite: Vec2, size: f32, sprite_loc: Vec2) anyerror!void {
+    const surface = sdl.SDL_LoadPNG("assets/sprites/spritesheet.png") orelse return error.TextureCreateFailed;
+    defer sdl.SDL_DestroySurface(surface);
+
+    const texture = sdl.SDL_CreateTextureFromSurface(renderer, surface);
+    defer sdl.SDL_DestroyTexture(texture);
+
+    const sprite_width: f32 = 32.0;
+    const sprite_height: f32 = 32.0;
+
+    const src_rect = sdl.SDL_FRect{
+        .x = sprite.x,
+        .y = sprite.y,
+        .w = sprite_width,
+        .h = sprite_height,
+    };
+    const dest_rect = sdl.SDL_FRect{
+        .x = sprite_loc.x - sprite_width * size - 10.0,
+        .y = sprite_loc.y,
+        .w = sprite_width * size,
+        .h = sprite_height * size,
+    };
+
+    _ = sdl.SDL_RenderTexture(renderer, texture, &src_rect, &dest_rect);
+}
