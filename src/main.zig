@@ -34,6 +34,7 @@ pub fn main(init: std.process.Init) !void {
     var player = user.init();
     // 3. Main Loop
     var quit = false;
+    var is_fullscreen = false;
     while (!quit) {
         var event: sdl.SDL_Event = undefined;
 
@@ -44,6 +45,11 @@ pub fn main(init: std.process.Init) !void {
             }
 
             if (event.type == sdl.SDL_EVENT_KEY_UP) {
+                if (event.key.scancode == sdl.SDL_SCANCODE_F11) {
+                    is_fullscreen = !is_fullscreen;
+                    _ = sdl.SDL_SetWindowFullscreen(window, is_fullscreen);
+                    _ = sdl.SDL_SyncWindow(window);
+                }
                 if (event.key.scancode == sdl.SDL_SCANCODE_ESCAPE) {
                     quit = true;
                 }
@@ -59,7 +65,7 @@ pub fn main(init: std.process.Init) !void {
         _ = try utils.renderSpritesheet(renderer, utils.Vec2{
             .x = 0.0,
             .y = 0.0,
-        }, 2.5, utils.Vec2{
+        }, 4, utils.Vec2{
             .x = 150.0,
             .y = 50.0,
         });
