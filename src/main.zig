@@ -4,6 +4,7 @@ const utils = @import("internal/helpers/utils.zig");
 const Io = std.Io;
 
 const sdl = @import("internal/graphics/sdl.zig").c;
+const engine = @import("internal/engine/engine.zig");
 
 pub fn main(init: std.process.Init) !void {
     const arena: std.mem.Allocator = init.arena.allocator();
@@ -61,7 +62,7 @@ pub fn main(init: std.process.Init) !void {
 
         _ = player.update(renderer);
 
-        _ = try utils.renderText("Hello World", renderer, 32.0, sdl.SDL_Color{ .r = 255, .g = 255, .b = 255, .a = 255 }, utils.Vec2{ .x = 0.0, .y = 0.0 });
+        _ = try utils.renderText("Hello World", renderer, 32.0, engine.Color.init(255, 255, 255, 255), utils.Vec2{ .x = 0.0, .y = 0.0 });
         _ = try utils.renderSpritesheet(renderer, utils.Vec2{
             .x = 0.0,
             .y = 0.0,
