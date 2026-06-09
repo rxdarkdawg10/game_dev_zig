@@ -33,13 +33,7 @@ pub fn renderText(text: []const u8, renderer: ?*sdl.SDL_Renderer, size: f32, col
     _ = sdl.SDL_RenderTexture(renderer, texture, null, &dest_rect);
 }
 
-pub fn renderSpritesheet(renderer: ?*sdl.SDL_Renderer, sprite: Vec2, size: f32, sprite_loc: Vec2) anyerror!void {
-    const surface = sdl.SDL_LoadPNG("assets/sprites/spritesheet.png") orelse return error.TextureCreateFailed;
-    defer sdl.SDL_DestroySurface(surface);
-
-    const texture = sdl.SDL_CreateTextureFromSurface(renderer, surface);
-    defer sdl.SDL_DestroyTexture(texture);
-
+pub fn renderSpritesheet(renderer: ?*sdl.SDL_Renderer, texture: ?*sdl.SDL_Texture, sprite: Vec2, size: f32, sprite_loc: Vec2) anyerror!void {
     const sprite_width: f32 = 32.0;
     const sprite_height: f32 = 32.0;
 

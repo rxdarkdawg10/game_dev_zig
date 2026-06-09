@@ -14,13 +14,8 @@ pub fn main(init: std.process.Init) !void {
         std.log.info("arg: {s}", .{arg});
     }
 
-    // 1. Init Video
-    if (!sdl.SDL_Init(sdl.SDL_INIT_VIDEO)) {
-        std.log.err("SDL Init Failed: {s}", .{sdl.SDL_GetError()});
-        return error.SdlInitFailed;
-    }
-    defer sdl.SDL_Quit();
-
+    _ = try engine.Engine.init();
+    defer engine.Engine.quit();
     // 2. Create Window
     var window: ?*sdl.SDL_Window = null;
     var renderer: ?*sdl.SDL_Renderer = null;
@@ -29,6 +24,12 @@ pub fn main(init: std.process.Init) !void {
         std.log.err("Failed to create Window & Renderer: {s}", .{sdl.SDL_GetError()});
         return error.SdlWindowCreationFailed;
     }
+
+    const surface = sdl.SDL_LoadPNG("assets/sprites/spritesheet.png") orelse return error.TextureCreateFailed;
+    const texture = sdl.SDL_CreateTextureFromSurface(renderer, surface);
+
+    defer sdl.SDL_DestroySurface(surface);
+    defer sdl.SDL_DestroyTexture(texture);
     defer sdl.SDL_DestroyRenderer(renderer);
     defer sdl.SDL_DestroyWindow(window);
 
@@ -62,12 +63,20 @@ pub fn main(init: std.process.Init) !void {
 
         _ = player.update(renderer);
 
-        _ = try utils.renderText("Hello World", renderer, 32.0, engine.Color.init(255, 255, 255, 255), utils.Vec2{ .x = 0.0, .y = 0.0 });
+        _ = try utils.renderText("Hello World", renderer, 32.0, engine.Color.init(
+            255,
+            255,
+            255,
+            255,
+        ), utils.Vec2{
+            .x = 0.0,
+            .y = 0.0,
+        });
         for (0..5) |i| {
             const val: i32 = @intCast(i);
             var x: f32 = @floatFromInt(val);
             x = x * 32.0;
-            _ = try utils.renderSpritesheet(renderer, utils.Vec2{
+            _ = try utils.renderSpritesheet(renderer, texture, utils.Vec2{
                 .x = x,
                 .y = 0.0,
             }, 4, utils.Vec2{
@@ -75,7 +84,7 @@ pub fn main(init: std.process.Init) !void {
                 .y = 50.0,
             });
         }
-        _ = try utils.renderSpritesheet(renderer, utils.Vec2{
+        _ = try utils.renderSpritesheet(renderer, texture, utils.Vec2{
             .x = 0.0,
             .y = 0.0,
         }, 4, utils.Vec2{
