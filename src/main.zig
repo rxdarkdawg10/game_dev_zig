@@ -63,6 +63,18 @@ pub fn main(init: std.process.Init) !void {
         _ = player.update(renderer);
 
         _ = try utils.renderText("Hello World", renderer, 32.0, engine.Color.init(255, 255, 255, 255), utils.Vec2{ .x = 0.0, .y = 0.0 });
+        for (0..5) |i| {
+            const val: i32 = @intCast(i);
+            var x: f32 = @floatFromInt(val);
+            x = x * 32.0;
+            _ = try utils.renderSpritesheet(renderer, utils.Vec2{
+                .x = x,
+                .y = 0.0,
+            }, 4, utils.Vec2{
+                .x = 150.0 + (x * 4),
+                .y = 50.0,
+            });
+        }
         _ = try utils.renderSpritesheet(renderer, utils.Vec2{
             .x = 0.0,
             .y = 0.0,
