@@ -14,24 +14,21 @@ pub fn main(init: std.process.Init) !void {
         std.log.info("arg: {s}", .{arg});
     }
 
-    _ = try engine.Engine.init();
+    var eng = try engine.Engine.init();
     defer engine.Engine.quit();
-    // 2. Create Window
-    var window: ?*sdl.SDL_Window = null;
-    var renderer: ?*sdl.SDL_Renderer = null;
 
-    if (!sdl.SDL_CreateWindowAndRenderer("Zig + SDL3 C API", 800, 600, 0, &window, &renderer)) {
+    if (!sdl.SDL_CreateWindowAndRenderer("Zig + SDL3 C API", 800, 600, 0, &eng.window, &eng.renderer)) {
         std.log.err("Failed to create Window & Renderer: {s}", .{sdl.SDL_GetError()});
         return error.SdlWindowCreationFailed;
     }
 
     const surface = sdl.SDL_LoadPNG("assets/sprites/spritesheet.png") orelse return error.TextureCreateFailed;
-    const texture = sdl.SDL_CreateTextureFromSurface(renderer, surface);
+    const texture = sdl.SDL_CreateTextureFromSurface(eng.renderer, surface);
 
     defer sdl.SDL_DestroySurface(surface);
     defer sdl.SDL_DestroyTexture(texture);
-    defer sdl.SDL_DestroyRenderer(renderer);
-    defer sdl.SDL_DestroyWindow(window);
+    defer sdl.SDL_DestroyRenderer(eng.renderer);
+    defer sdl.SDL_DestroyWindow(eng.window);
 
     var player = user.init();
     // 3. Main Loop
@@ -49,8 +46,8 @@ pub fn main(init: std.process.Init) !void {
             if (event.type == sdl.SDL_EVENT_KEY_UP) {
                 if (event.key.scancode == sdl.SDL_SCANCODE_F11) {
                     is_fullscreen = !is_fullscreen;
-                    _ = sdl.SDL_SetWindowFullscreen(window, is_fullscreen);
-                    _ = sdl.SDL_SyncWindow(window);
+                    _ = sdl.SDL_SetWindowFullscreen(eng.window, is_fullscreen);
+                    _ = sdl.SDL_SyncWindow(eng.window);
                 }
                 if (event.key.scancode == sdl.SDL_SCANCODE_ESCAPE) {
                     quit = true;
@@ -58,12 +55,12 @@ pub fn main(init: std.process.Init) !void {
             }
         }
 
-        _ = sdl.SDL_SetRenderDrawColor(renderer, 33, 33, 43, 255);
-        _ = sdl.SDL_RenderClear(renderer);
+        _ = sdl.SDL_SetRenderDrawColor(eng.renderer, 33, 33, 43, 255);
+        _ = sdl.SDL_RenderClear(eng.renderer);
 
-        _ = player.update(renderer);
+        _ = player.update(eng.renderer);
 
-        _ = try utils.renderText("Hello World", renderer, 32.0, engine.Color.init(
+        _ = try utils.renderText("Hello World", eng.renderer, 32.0, engine.Color.init(
             255,
             255,
             255,
@@ -76,7 +73,7 @@ pub fn main(init: std.process.Init) !void {
             const val: i32 = @intCast(i);
             var x: f32 = @floatFromInt(val);
             x = x * 32.0;
-            _ = try utils.renderSpritesheet(renderer, texture, utils.Vec2{
+            _ = try utils.renderSpritesheet(eng.renderer, texture, utils.Vec2{
                 .x = x,
                 .y = 0.0,
             }, 4, utils.Vec2{
@@ -84,13 +81,13 @@ pub fn main(init: std.process.Init) !void {
                 .y = 50.0,
             });
         }
-        _ = try utils.renderSpritesheet(renderer, texture, utils.Vec2{
+        _ = try utils.renderSpritesheet(eng.renderer, texture, utils.Vec2{
             .x = 0.0,
             .y = 0.0,
         }, 4, utils.Vec2{
             .x = 150.0,
             .y = 50.0,
         });
-        _ = sdl.SDL_RenderPresent(renderer);
+        _ = sdl.SDL_RenderPresent(eng.renderer);
     }
 }
