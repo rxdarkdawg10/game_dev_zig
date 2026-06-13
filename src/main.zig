@@ -29,6 +29,9 @@ pub fn main(init: std.process.Init) !void {
     while (!quit) {
         var event: sdl.SDL_Event = undefined;
 
+        var keys: c_int = 0;
+        const keystate = sdl.SDL_GetKeyboardState(&keys);
+
         // Poll Events
         while (sdl.SDL_PollEvent(&event)) {
             if (event.type == sdl.SDL_EVENT_QUIT) {
@@ -47,6 +50,7 @@ pub fn main(init: std.process.Init) !void {
             }
         }
 
+        player.move(keystate);
         _ = sdl.SDL_SetRenderDrawColor(eng.renderer, 33, 33, 43, 255);
         _ = sdl.SDL_RenderClear(eng.renderer);
 
