@@ -15,20 +15,12 @@ pub fn main(init: std.process.Init) !void {
     }
 
     var eng = try engine.Engine.init();
-    defer engine.Engine.quit();
+    defer eng.quit();
 
-    if (!sdl.SDL_CreateWindowAndRenderer("Zig + SDL3 C API", 800, 600, 0, &eng.window, &eng.renderer)) {
-        std.log.err("Failed to create Window & Renderer: {s}", .{sdl.SDL_GetError()});
-        return error.SdlWindowCreationFailed;
-    }
+    _ = try eng.createWindowAndRenderer();
 
-    const surface = sdl.SDL_LoadPNG("assets/sprites/spritesheet.png") orelse return error.TextureCreateFailed;
-    const texture = sdl.SDL_CreateTextureFromSurface(eng.renderer, surface);
-
-    defer sdl.SDL_DestroySurface(surface);
-    defer sdl.SDL_DestroyTexture(texture);
-    defer sdl.SDL_DestroyRenderer(eng.renderer);
-    defer sdl.SDL_DestroyWindow(eng.window);
+    _ = try eng.loadTexture("assets/sprites/spritesheet.png");
+    defer eng.destroyTexture();
 
     var player = user.init();
     // 3. Main Loop
@@ -73,7 +65,7 @@ pub fn main(init: std.process.Init) !void {
             const val: i32 = @intCast(i);
             var x: f32 = @floatFromInt(val);
             x = x * 32.0;
-            _ = try utils.renderSpritesheet(eng.renderer, texture, utils.Vec2{
+            _ = try utils.renderSpritesheet(eng.renderer, eng.texture, utils.Vec2{
                 .x = x,
                 .y = 0.0,
             }, 4, utils.Vec2{
@@ -81,7 +73,7 @@ pub fn main(init: std.process.Init) !void {
                 .y = 50.0,
             });
         }
-        _ = try utils.renderSpritesheet(eng.renderer, texture, utils.Vec2{
+        _ = try utils.renderSpritesheet(eng.renderer, eng.texture, utils.Vec2{
             .x = 0.0,
             .y = 0.0,
         }, 4, utils.Vec2{
