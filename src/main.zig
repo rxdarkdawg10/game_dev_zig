@@ -1,10 +1,8 @@
 const std = @import("std");
 const user = @import("internal/mobs/player.zig").Player;
 const utils = @import("internal/helpers/utils.zig");
-const Io = std.Io;
-
-const sdl = @import("internal/graphics/sdl.zig").c;
 const engine = @import("internal/engine/engine.zig");
+const Io = std.Io;
 
 pub fn main(init: std.process.Init) !void {
     const arena: std.mem.Allocator = init.arena.allocator();
@@ -24,35 +22,17 @@ pub fn main(init: std.process.Init) !void {
 
     var player = user.init();
     // 3. Main Loop
-    var quit = false;
-    var is_fullscreen = false;
-    while (!quit) {
-        var event: sdl.SDL_Event = undefined;
 
-        var keys: c_int = 0;
-        const keystate = sdl.SDL_GetKeyboardState(&keys);
+    while (!eng.quit_game) {
+        _ = try eng.getKeyboardState();
 
         // Poll Events
-        while (sdl.SDL_PollEvent(&event)) {
-            if (event.type == sdl.SDL_EVENT_QUIT) {
-                quit = true;
-            }
-
-            if (event.type == sdl.SDL_EVENT_KEY_UP) {
-                if (event.key.scancode == sdl.SDL_SCANCODE_F11) {
-                    is_fullscreen = !is_fullscreen;
-                    _ = sdl.SDL_SetWindowFullscreen(eng.window, is_fullscreen);
-                    _ = sdl.SDL_SyncWindow(eng.window);
-                }
-                if (event.key.scancode == sdl.SDL_SCANCODE_ESCAPE) {
-                    quit = true;
-                }
-            }
+        while (eng.pollEvents()) {
+            eng.handleEvents();
         }
 
-        player.move(keystate);
-        _ = sdl.SDL_SetRenderDrawColor(eng.renderer, 33, 33, 43, 255);
-        _ = sdl.SDL_RenderClear(eng.renderer);
+        player.move(eng.keystate);
+        eng.setClearColor(engine.Color.init(33, 33, 43, 255));
 
         _ = player.update(eng.renderer);
 
@@ -84,6 +64,6 @@ pub fn main(init: std.process.Init) !void {
             .x = 150.0,
             .y = 50.0,
         });
-        _ = sdl.SDL_RenderPresent(eng.renderer);
+        eng.renderScene();
     }
 }

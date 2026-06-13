@@ -29,12 +29,6 @@ pub const Player = struct {
         if (keys[sdl.SDL_SCANCODE_D] == true) {
             self.pos.x = self.pos.x + self.velocity;
         }
-        // switch (keys) {
-        //     keys[sdl.SDL_SCANCODE_W] => self.pos.y = self.pos.y - self.velocity,
-        //     .DOWN => self.pos.y = self.pos.y + self.velocity,
-        //     .LEFT => self.pos.x = self.pos.x - self.velocity,
-        //     .RIGHT => self.pos.x = self.pos.x + self.velocity,
-        // }
     }
 
     pub fn update(self: *Player, renderer: ?*sdl.SDL_Renderer) bool {

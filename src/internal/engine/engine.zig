@@ -5,6 +5,10 @@ pub const Engine = struct {
     window: ?*sdl.SDL_Window = null,
     renderer: ?*sdl.SDL_Renderer = null,
     texture: ?*sdl.SDL_Texture = null,
+    events: sdl.SDL_Event = undefined,
+    keystate: [*c]const bool = undefined,
+    quit_game: bool = false,
+    is_fullscreen: bool = false,
 
     pub fn init() anyerror!Engine {
         // 1. Init Video
@@ -17,10 +21,41 @@ pub const Engine = struct {
     }
 
     pub fn createWindowAndRenderer(self: *Engine) anyerror!void {
-        if (!sdl.SDL_CreateWindowAndRenderer("Zig + SDL3 C API", 800, 600, 0, &self.window, &self.renderer)) {
+        if (!sdl.SDL_CreateWindowAndRenderer("Game Dev", 800, 600, 0, &self.window, &self.renderer)) {
             std.log.err("Failed to create Window & Renderer: {s}", .{sdl.SDL_GetError()});
             return error.SdlWindowCreationFailed;
         }
+    }
+
+    pub fn getKeyboardState(self: *Engine) anyerror!void {
+        var keys: c_int = 0;
+        self.keystate = sdl.SDL_GetKeyboardState(&keys);
+    }
+
+    pub fn pollEvents(self: *Engine) bool {
+        return sdl.SDL_PollEvent(&self.events);
+    }
+
+    pub fn handleEvents(self: *Engine) void {
+        if (self.events.type == sdl.SDL_EVENT_QUIT) {
+            self.quit_game = true;
+        }
+
+        if (self.events.type == sdl.SDL_EVENT_KEY_UP) {
+            if (self.events.key.scancode == sdl.SDL_SCANCODE_F11) {
+                self.is_fullscreen = !self.is_fullscreen;
+                _ = sdl.SDL_SetWindowFullscreen(self.window, self.is_fullscreen);
+                _ = sdl.SDL_SyncWindow(self.window);
+            }
+            if (self.events.key.scancode == sdl.SDL_SCANCODE_ESCAPE) {
+                self.quit_game = true;
+            }
+        }
+    }
+
+    pub fn setClearColor(self: *Engine, color: sdl.SDL_Color) void {
+        _ = sdl.SDL_SetRenderDrawColor(self.renderer, color.r, color.g, color.b, color.a);
+        _ = sdl.SDL_RenderClear(self.renderer);
     }
 
     pub fn loadTexture(self: *Engine, file: []const u8) anyerror!void {
@@ -32,6 +67,10 @@ pub const Engine = struct {
 
     pub fn destroyTexture(self: *Engine) void {
         defer sdl.SDL_DestroyTexture(self.texture);
+    }
+
+    pub fn renderScene(self: *Engine) void {
+        _ = sdl.SDL_RenderPresent(self.renderer);
     }
 
     pub fn quit(self: *Engine) void {
