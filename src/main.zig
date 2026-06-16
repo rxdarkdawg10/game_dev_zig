@@ -15,6 +15,8 @@ pub fn main(init: std.process.Init) !void {
     var eng = try engine.Engine.init();
     defer eng.quit();
 
+    const frameCap: f64 = 1000.0 / 60.0;
+    var frameCount: f64 = 0.0;
     _ = try eng.createWindowAndRenderer();
 
     _ = try eng.loadTexture("assets/sprites/spritesheet.png");
@@ -23,7 +25,16 @@ pub fn main(init: std.process.Init) !void {
     var player = user.init();
     // 3. Main Loop
 
+    // Delta Time
+    var lastTime: f64 = @floatFromInt(eng.getTicks());
+    var deltaTime: f64 = 0.0;
+
     while (!eng.quit_game) {
+        const currentTime: f64 = @floatFromInt(eng.getTicks());
+
+        deltaTime = (currentTime - lastTime) / 1000.0;
+        lastTime = currentTime;
+
         _ = try eng.getKeyboardState();
 
         // Poll Events
@@ -36,7 +47,8 @@ pub fn main(init: std.process.Init) !void {
 
         _ = player.update(eng.renderer);
 
-        _ = try utils.renderText("Hello World", eng.renderer, 32.0, engine.Color.init(
+        const fps = try eng.getFPS(1.0 / deltaTime, arena);
+        _ = try utils.renderText(fps, eng.renderer, 32.0, engine.Color.init(
             255,
             255,
             255,
@@ -64,6 +76,20 @@ pub fn main(init: std.process.Init) !void {
             .x = 150.0,
             .y = 50.0,
         });
+
+        var frameTimer = deltaTime * 1000.0;
+        frameCount = frameCount + 1;
+        if (frameTimer >= 1000.0) {
+            frameCount = 0.0;
+            frameTimer = 0.0;
+        }
+
+        var frameTicks: f64 = @floatFromInt(eng.getTicks());
+        frameTicks = frameTicks - currentTime;
+        if (frameTicks < frameCap) {
+            eng.delayEngine(frameCap - frameTicks);
+        }
+
         eng.renderScene();
     }
 }

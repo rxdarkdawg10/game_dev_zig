@@ -10,7 +10,7 @@ pub const Player = struct {
     velocity: f32,
 
     pub fn init() Player {
-        return .{ .t = true, .pos = .{ .x = 0.0, .y = 0.0 }, .velocity = 0.5 };
+        return .{ .t = true, .pos = .{ .x = 0.0, .y = 0.0 }, .velocity = 2.5 };
     }
 
     pub fn move(self: *Player, keys: [*]const bool) void {

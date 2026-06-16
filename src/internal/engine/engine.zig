@@ -79,6 +79,23 @@ pub const Engine = struct {
 
         sdl.SDL_Quit();
     }
+
+    pub fn getTicks(self: *Engine) u64 {
+        _ = self;
+
+        return sdl.SDL_GetTicks();
+    }
+
+    pub fn getFPS(self: *Engine, fps: f64, alloc: std.mem.Allocator) anyerror![]const u8 {
+        _ = self;
+        const float_str = try std.fmt.allocPrint(alloc, "FPS: {d:.2}", .{fps});
+        return float_str;
+    }
+
+    pub fn delayEngine(self: *Engine, delay: f64) void {
+        _ = self;
+        sdl.SDL_Delay(@intFromFloat(delay));
+    }
 };
 
 pub const Color = struct {
