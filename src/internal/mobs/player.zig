@@ -8,26 +8,34 @@ pub const Player = struct {
     t: bool,
     pos: utils.Vec2,
     velocity: f32,
+    speed: f32,
+    gravity: f32,
 
     pub fn init() Player {
-        return .{ .t = true, .pos = .{ .x = 0.0, .y = 0.0 }, .velocity = 2.5 };
+        return .{
+            .t = true,
+            .pos = .{ .x = 0.0, .y = 0.0 },
+            .velocity = 0.0,
+            .speed = 2.5,
+            .gravity = 0.5,
+        };
     }
 
     pub fn move(self: *Player, keys: [*]const bool) void {
         if (keys[sdl.SDL_SCANCODE_W] == true) {
-            self.pos.y = self.pos.y - self.velocity;
+            self.pos.y = self.pos.y - self.speed;
         }
 
         if (keys[sdl.SDL_SCANCODE_S] == true) {
-            self.pos.y = self.pos.y + self.velocity;
+            self.pos.y = self.pos.y + self.speed;
         }
 
         if (keys[sdl.SDL_SCANCODE_A] == true) {
-            self.pos.x = self.pos.x - self.velocity;
+            self.pos.x = self.pos.x - self.speed;
         }
 
         if (keys[sdl.SDL_SCANCODE_D] == true) {
-            self.pos.x = self.pos.x + self.velocity;
+            self.pos.x = self.pos.x + self.speed;
         }
     }
 
@@ -36,6 +44,14 @@ pub const Player = struct {
 
         _ = sdl.SDL_SetRenderDrawColor(renderer, 100, 33, 43, 255);
         _ = sdl.SDL_RenderFillRect(renderer, &rect);
+
+        self.velocity = self.velocity + self.gravity;
+        self.pos.y = self.pos.y + self.velocity;
+
+        if (self.pos.y >= 500.0) {
+            self.pos.y = 500.0;
+            self.velocity = 0.0;
+        }
         return true;
     }
 };
