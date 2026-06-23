@@ -17,7 +17,7 @@ pub const Player = struct {
             .pos = .{ .x = 0.0, .y = 0.0 },
             .velocity = 0.0,
             .speed = 2.5,
-            .gravity = 0.5,
+            .gravity = 0.1,
         };
     }
 
@@ -39,8 +39,8 @@ pub const Player = struct {
         }
     }
 
-    pub fn update(self: *Player, renderer: ?*sdl.SDL_Renderer) bool {
-        var rect: sdl.SDL_FRect = .{ .h = 100.0, .w = 100.0, .x = self.pos.x, .y = self.pos.y };
+    pub fn update(self: *Player, renderer: ?*sdl.SDL_Renderer, camera: sdl.SDL_FRect) bool {
+        var rect: sdl.SDL_FRect = .{ .h = 100.0, .w = 100.0, .x = self.pos.x - camera.x, .y = self.pos.y - camera.y };
 
         _ = sdl.SDL_SetRenderDrawColor(renderer, 100, 33, 43, 255);
         _ = sdl.SDL_RenderFillRect(renderer, &rect);
