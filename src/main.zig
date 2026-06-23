@@ -71,7 +71,7 @@ pub fn main(init: std.process.Init) !void {
             .y = 0.0,
         });
 
-        const player_pos_str = try std.fmt.allocPrint(arena, "POS X: {d} POS: Y: {d}", .{ player.pos.x, player.pos.y });
+        const player_pos_str = try std.fmt.allocPrint(arena, "POS X: {d:.0} POS: Y: {d:.0}", .{ player.pos.x, player.pos.y });
         _ = try utils.renderText(player_pos_str, eng.renderer, 32.0, engine.Color.init(
             255,
             255,
