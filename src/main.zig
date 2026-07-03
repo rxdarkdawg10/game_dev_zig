@@ -2,7 +2,7 @@ const std = @import("std");
 const user = @import("internal/mobs/player.zig").Player;
 const cam = @import("internal/system/camera.zig").Camera;
 const utils = @import("internal/helpers/utils.zig");
-const engine = @import("internal/engine/engine.zig");
+const engine = @import("internal/graphics/engine.zig");
 const Io = std.Io;
 const sdl = @import("internal/graphics/sdl.zig").c;
 
@@ -53,27 +53,26 @@ pub fn main(init: std.process.Init) !void {
         _ = player.update(eng.renderer, camera.pos, @floatCast(deltaTime));
 
         const fps = try eng.getFPS(1.0 / deltaTime, arena);
-        _ = try utils.renderText(fps, eng.renderer, 32.0, engine.Color.init(
-            255,
-            255,
-            255,
-            255,
-        ), utils.Vec2{
+        _ = try engine.renderText(fps, eng.renderer, 32.0, engine.Color{
+            .r = 255,
+            .g = 255,
+            .b = 255,
+            .a = 255,
+        }, utils.Vec2{
             .x = 0.0,
             .y = 0.0,
         });
 
         const player_pos_str = try std.fmt.allocPrint(arena, "POS X: {d:.0} POS: Y: {d:.0}", .{ player.pos.x, player.pos.y });
-        _ = try utils.renderText(player_pos_str, eng.renderer, 32.0, engine.Color.init(
-            255,
-            255,
-            255,
-            255,
-        ), utils.Vec2{
+        _ = try engine.renderText(player_pos_str, eng.renderer, 32.0, engine.Color{
+            .r = 255,
+            .g = 255,
+            .b = 255,
+            .a = 255,
+        }, utils.Vec2{
             .x = 0.0,
             .y = 32.0,
         });
-
         // for (0..5) |i| {
         //     const val: i32 = @intCast(i);
         //     var x: f32 = @floatFromInt(val);
@@ -86,13 +85,13 @@ pub fn main(init: std.process.Init) !void {
         //         .y = 50.0,
         //     });
         // }
-        // _ = try utils.renderSpritesheet(eng.renderer, eng.texture, utils.Vec2{
-        //     .x = 0.0,
-        //     .y = 0.0,
-        // }, 2, utils.Vec2{
-        //     .x = 800.0 - 16.0,
-        //     .y = 0.0,
-        // });
+        _ = try engine.renderSpritesheet(eng.renderer, eng.texture, utils.Vec2{
+            .x = 0.0,
+            .y = 0.0,
+        }, 2, utils.Vec2{
+            .x = 800.0 - 16.0,
+            .y = 0.0,
+        });
 
         var frameTimer = deltaTime * 1000.0;
         frameCount = frameCount + 1;

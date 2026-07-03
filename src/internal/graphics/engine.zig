@@ -1,4 +1,5 @@
 const std = @import("std");
+const utils = @import("../helpers/utils.zig");
 const sdl = @import("../graphics/sdl.zig").c;
 
 pub const Engine = struct {
@@ -99,7 +100,58 @@ pub const Engine = struct {
 };
 
 pub const Color = struct {
+    r: u8,
+    g: u8,
+    b: u8,
+    a: u8,
     pub fn init(r: u8, g: u8, b: u8, a: u8) sdl.SDL_Color {
         return sdl.SDL_Color{ .r = r, .g = g, .b = b, .a = a };
     }
+
+    pub fn to_sdl(self: Color) sdl.SDL_Color {
+        return sdl.SDL_Color{ .r = self.r, .g = self.g, .b = self.b, .a = self.a };
+    }
 };
+
+pub fn renderText(text: []const u8, renderer: ?*sdl.SDL_Renderer, size: f32, color: Color, loc: utils.Vec2) anyerror!void {
+    _ = sdl.TTF_Init();
+    defer sdl.TTF_Quit();
+
+    const font = sdl.TTF_OpenFont("assets/fonts/UbuntuMono-R.ttf", size);
+    defer sdl.TTF_CloseFont(font);
+
+    const surface = sdl.TTF_RenderText_Blended(font, text.ptr, 0, color.to_sdl()) orelse return error.TextureCreateFailed;
+    defer sdl.SDL_DestroySurface(surface);
+
+    const texture = sdl.SDL_CreateTextureFromSurface(renderer, surface);
+    defer sdl.SDL_DestroyTexture(texture);
+
+    const dest_rect = sdl.SDL_FRect{
+        .h = @floatFromInt(surface.*.h),
+        .w = @floatFromInt(surface.*.w),
+        .x = loc.x,
+        .y = loc.y,
+    };
+
+    _ = sdl.SDL_RenderTexture(renderer, texture, null, &dest_rect);
+}
+
+pub fn renderSpritesheet(renderer: ?*sdl.SDL_Renderer, texture: ?*sdl.SDL_Texture, sprite: utils.Vec2, size: f32, sprite_loc: utils.Vec2) anyerror!void {
+    const sprite_width: f32 = 32.0;
+    const sprite_height: f32 = 32.0;
+
+    const src_rect = sdl.SDL_FRect{
+        .x = sprite.x,
+        .y = sprite.y,
+        .w = sprite_width,
+        .h = sprite_height,
+    };
+    const dest_rect = sdl.SDL_FRect{
+        .x = sprite_loc.x - sprite_width * size - 10.0,
+        .y = sprite_loc.y,
+        .w = sprite_width * size,
+        .h = sprite_height * size,
+    };
+
+    _ = sdl.SDL_RenderTexture(renderer, texture, &src_rect, &dest_rect);
+}

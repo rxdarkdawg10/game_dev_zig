@@ -39,8 +39,8 @@ pub const Player = struct {
         }
     }
 
-    pub fn update(self: *Player, renderer: ?*sdl.SDL_Renderer, camera: utils.Vec2, dt: f32) bool {
-        var rect: sdl.SDL_FRect = .{ .h = 100.0, .w = 100.0, .x = self.pos.x - camera.x, .y = self.pos.y - camera.y };
+    pub fn update(self: *Player, renderer: ?*sdl.SDL_Renderer, camera_pos: utils.Vec2, dt: f32) bool {
+        var rect: sdl.SDL_FRect = .{ .h = 100.0, .w = 100.0, .x = self.pos.x - camera_pos.x, .y = self.pos.y - camera_pos.y };
 
         _ = sdl.SDL_SetRenderDrawColor(renderer, 100, 33, 43, 255);
         _ = sdl.SDL_RenderFillRect(renderer, &rect);
