@@ -1,13 +1,10 @@
 const std = @import("std");
 const user = @import("internal/mobs/player.zig").Player;
+const cam = @import("internal/system/camera.zig").Camera;
 const utils = @import("internal/helpers/utils.zig");
 const engine = @import("internal/engine/engine.zig");
 const Io = std.Io;
 const sdl = @import("internal/graphics/sdl.zig").c;
-
-fn lerp(a: f32, b: f32, t: f32) f32 {
-    return a + (b - a) * t;
-}
 
 pub fn main(init: std.process.Init) !void {
     const arena: std.mem.Allocator = init.arena.allocator();
@@ -28,8 +25,8 @@ pub fn main(init: std.process.Init) !void {
     defer eng.destroyTexture();
 
     var player = user.init();
-    var camera: sdl.SDL_FRect = .{ .x = 0.0, .y = 0.0, .w = 800.0, .h = 600.0 };
-    const lerpSpeed: f32 = 0.05;
+    var camera = cam.init(0.0, 0.0, 800.0, 600.0);
+
     // 3. Main Loop
 
     // Delta Time
@@ -49,16 +46,11 @@ pub fn main(init: std.process.Init) !void {
             eng.handleEvents();
         }
 
-        player.move(eng.keystate);
+        player.move(eng.keystate, @floatCast(deltaTime));
         eng.setClearColor(engine.Color.init(33, 33, 43, 255));
 
-        const targetX = player.pos.x - (800.0 / 2.0);
-        const targetY = player.pos.y - (600.0 / 2.0);
-
-        camera.x = lerp(camera.x, targetX, lerpSpeed);
-        camera.y = lerp(camera.y, targetY, lerpSpeed);
-
-        _ = player.update(eng.renderer, camera);
+        _ = camera.update(player.pos, @floatCast(deltaTime));
+        _ = player.update(eng.renderer, camera.pos, @floatCast(deltaTime));
 
         const fps = try eng.getFPS(1.0 / deltaTime, arena);
         _ = try utils.renderText(fps, eng.renderer, 32.0, engine.Color.init(
@@ -94,13 +86,13 @@ pub fn main(init: std.process.Init) !void {
         //         .y = 50.0,
         //     });
         // }
-        _ = try utils.renderSpritesheet(eng.renderer, eng.texture, utils.Vec2{
-            .x = 0.0,
-            .y = 0.0,
-        }, 2, utils.Vec2{
-            .x = 800.0 - 16.0,
-            .y = 0.0,
-        });
+        // _ = try utils.renderSpritesheet(eng.renderer, eng.texture, utils.Vec2{
+        //     .x = 0.0,
+        //     .y = 0.0,
+        // }, 2, utils.Vec2{
+        //     .x = 800.0 - 16.0,
+        //     .y = 0.0,
+        // });
 
         var frameTimer = deltaTime * 1000.0;
         frameCount = frameCount + 1;

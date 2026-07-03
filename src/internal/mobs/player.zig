@@ -16,36 +16,36 @@ pub const Player = struct {
             .t = true,
             .pos = .{ .x = 0.0, .y = 0.0 },
             .velocity = 0.0,
-            .speed = 2.5,
-            .gravity = 0.1,
+            .speed = 5,
+            .gravity = 5,
         };
     }
 
-    pub fn move(self: *Player, keys: [*]const bool) void {
+    pub fn move(self: *Player, keys: [*]const bool, dt: f32) void {
         if (keys[sdl.SDL_SCANCODE_W] == true) {
-            self.pos.y = self.pos.y - self.speed;
+            self.pos.y = self.pos.y - (self.speed * dt);
         }
 
         if (keys[sdl.SDL_SCANCODE_S] == true) {
-            self.pos.y = self.pos.y + self.speed;
+            self.pos.y = self.pos.y + (self.speed * dt);
         }
 
         if (keys[sdl.SDL_SCANCODE_A] == true) {
-            self.pos.x = self.pos.x - self.speed;
+            self.pos.x = self.pos.x - (self.speed * dt);
         }
 
         if (keys[sdl.SDL_SCANCODE_D] == true) {
-            self.pos.x = self.pos.x + self.speed;
+            self.pos.x = self.pos.x + (self.speed * dt);
         }
     }
 
-    pub fn update(self: *Player, renderer: ?*sdl.SDL_Renderer, camera: sdl.SDL_FRect) bool {
+    pub fn update(self: *Player, renderer: ?*sdl.SDL_Renderer, camera: utils.Vec2, dt: f32) bool {
         var rect: sdl.SDL_FRect = .{ .h = 100.0, .w = 100.0, .x = self.pos.x - camera.x, .y = self.pos.y - camera.y };
 
         _ = sdl.SDL_SetRenderDrawColor(renderer, 100, 33, 43, 255);
         _ = sdl.SDL_RenderFillRect(renderer, &rect);
 
-        self.velocity = self.velocity + self.gravity;
+        self.velocity = self.velocity + (self.gravity * dt);
         self.pos.y = self.pos.y + self.velocity;
 
         if (self.pos.y >= 500.0) {
