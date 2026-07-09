@@ -51,9 +51,11 @@ pub const Player = struct {
         _ = eng.setRenderDrawColor(graphics.Color{ .r = 100, .g = 33, .b = 43, .a = 255 });
         _ = eng.renderFillRect(rect);
 
+        // Handle gravity
         self.velocity = self.velocity + (self.gravity * dt);
         self.pos.y = self.pos.y + self.velocity;
 
+        //TODO: Temporary floor collision routine
         if (self.pos.y >= 500.0) {
             self.pos.y = 500.0;
             self.velocity = 0.0;
