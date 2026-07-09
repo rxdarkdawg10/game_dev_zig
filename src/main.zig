@@ -46,11 +46,11 @@ pub fn main(init: std.process.Init) !void {
             eng.handleEvents();
         }
 
-        player.move(eng.keystate, @floatCast(deltaTime));
+        player.update(&eng, @floatCast(deltaTime));
         eng.setClearColor(engine.Color.init(33, 33, 43, 255));
 
         _ = camera.update(player.pos, @floatCast(deltaTime));
-        _ = player.update(eng.renderer, camera.pos, @floatCast(deltaTime));
+        _ = player.draw(&eng, camera.pos, @floatCast(deltaTime));
 
         const fps = try eng.getFPS(1.0 / deltaTime, arena);
         _ = try engine.renderText(fps, eng.renderer, 32.0, engine.Color{

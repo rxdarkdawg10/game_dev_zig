@@ -33,6 +33,26 @@ pub const Engine = struct {
         self.keystate = sdl.SDL_GetKeyboardState(&keys);
     }
 
+    pub fn getKeyPress(self: *Engine, key: KEYS) bool {
+        switch (key) {
+            .KEY_W => {
+                return self.keystate[sdl.SDL_SCANCODE_W];
+            },
+            .KEY_D => {
+                return self.keystate[sdl.SDL_SCANCODE_D];
+            },
+            .KEY_S => {
+                return self.keystate[sdl.SDL_SCANCODE_S];
+            },
+            .KEY_A => {
+                return self.keystate[sdl.SDL_SCANCODE_A];
+            },
+            .KEY_SPACE => {
+                return self.keystate[sdl.SDL_SCANCODE_SPACE];
+            },
+        }
+    }
+
     pub fn pollEvents(self: *Engine) bool {
         return sdl.SDL_PollEvent(&self.events);
     }
@@ -96,6 +116,33 @@ pub const Engine = struct {
     pub fn delayEngine(self: *Engine, delay: f64) void {
         _ = self;
         sdl.SDL_Delay(@intFromFloat(delay));
+    }
+
+    pub fn setRenderDrawColor(self: *Engine, color: Color) void {
+        _ = sdl.SDL_SetRenderDrawColor(self.renderer, color.r, color.g, color.b, color.a);
+    }
+
+    pub fn renderFillRect(self: *Engine, rect: Rect) void {
+        _ = sdl.SDL_RenderFillRect(self.renderer, &rect.to_sdl());
+    }
+};
+
+pub const KEYS = enum {
+    KEY_W,
+    KEY_D,
+    KEY_A,
+    KEY_S,
+    KEY_SPACE,
+};
+
+pub const Rect = struct {
+    h: f32,
+    w: f32,
+    x: f32,
+    y: f32,
+
+    fn to_sdl(self: Rect) sdl.SDL_FRect {
+        return sdl.SDL_FRect{ .h = self.h, .w = self.w, .x = self.x, .y = self.y };
     }
 };
 
