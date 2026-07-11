@@ -12,6 +12,7 @@ pub const Player = struct {
     gravity: f32,
     is_grounded: bool,
     jump_strength: f32,
+    collision: bool,
 
     pub fn init() Player {
         return .{
@@ -22,10 +23,15 @@ pub const Player = struct {
             .gravity = 5,
             .is_grounded = false,
             .jump_strength = -5.0,
+            .collision = false,
         };
     }
 
-    pub fn update(self: *Player, eng: *graphics.Engine, dt: f32) void {
+    pub fn update(self: *Player, eng: *graphics.Engine, entities: *std.ArrayList(graphics.Rect), dt: f32) void {
+        for (entities.items) |entity| {
+            self.collision = check_collision(self, entity);
+        }
+        // Player Movement
         if (eng.getKeyPress(graphics.KEYS.KEY_W)) {
             self.pos.y = self.pos.y - (self.speed * dt);
         }
@@ -45,7 +51,7 @@ pub const Player = struct {
         }
     }
 
-    pub fn draw(self: *Player, eng: *graphics.Engine, camera_pos: utils.Vec2, dt: f32) bool {
+    pub fn draw(self: *Player, eng: *graphics.Engine, camera_pos: utils.Vec2, dt: f32) void {
         const rect: graphics.Rect = .{ .h = 100.0, .w = 100.0, .x = self.pos.x - camera_pos.x, .y = self.pos.y - camera_pos.y };
 
         _ = eng.setRenderDrawColor(graphics.Color{ .r = 100, .g = 33, .b = 43, .a = 255 });
@@ -61,6 +67,18 @@ pub const Player = struct {
             self.velocity = 0.0;
             self.is_grounded = true;
         }
-        return true;
+    }
+
+    fn check_collision(self: *Player, entity: graphics.Rect) bool {
+        std.debug.print("{} {}\n{} {}\n\n", .{ entity.x, entity.y, self.pos.x, self.pos.y });
+        if (self.pos.x == entity.x) {
+            return true;
+        }
+
+        if (self.pos.y == entity.y) {
+            return true;
+        }
+
+        return false;
     }
 };

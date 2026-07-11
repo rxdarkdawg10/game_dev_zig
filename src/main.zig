@@ -3,6 +3,8 @@ const user = @import("internal/mobs/player.zig").Player;
 const cam = @import("internal/system/camera.zig").Camera;
 const utils = @import("internal/helpers/utils.zig");
 const engine = @import("internal/graphics/engine.zig");
+const game = @import("internal/system/game.zig");
+const scenes = @import("internal/scenes/scenes.zig");
 const Io = std.Io;
 const sdl = @import("internal/graphics/sdl.zig").c;
 
@@ -23,10 +25,12 @@ pub fn main(init: std.process.Init) !void {
 
     _ = try eng.loadTexture("assets/sprites/spritesheet.png");
     defer eng.destroyTexture();
-
+    const gameState = game.GameState.init();
     var player = user.init();
     var camera = cam.init(0.0, 0.0, 800.0, 600.0);
+    var world1 = try scenes.World1.init(scenes.SCENETYPES.WORLD1, arena);
 
+    _ = gameState;
     // 3. Main Loop
 
     // Delta Time
@@ -46,9 +50,13 @@ pub fn main(init: std.process.Init) !void {
             eng.handleEvents();
         }
 
-        player.update(&eng, @floatCast(deltaTime));
-        eng.setClearColor(engine.Color.init(33, 33, 43, 255));
+        // Update Game Elements
+        world1.update(&eng, @floatCast(deltaTime));
+        player.update(&eng, &world1.entities, @floatCast(deltaTime));
 
+        // Draw Game Elements
+        eng.setClearColor(engine.Color.init(33, 33, 43, 255)); // <- Base Background Color
+        _ = try world1.draw(&eng, camera.pos, @floatCast(deltaTime));
         _ = camera.update(player.pos, @floatCast(deltaTime));
         _ = player.draw(&eng, camera.pos, @floatCast(deltaTime));
 
@@ -63,7 +71,7 @@ pub fn main(init: std.process.Init) !void {
             .y = 0.0,
         });
 
-        const player_pos_str = try std.fmt.allocPrint(arena, "POS X: {d:.0} POS: Y: {d:.0}", .{ player.pos.x, player.pos.y });
+        const player_pos_str = try std.fmt.allocPrint(arena, "POS X: {d:.0} POS: Y: {d:.0}, Collision: {}", .{ player.pos.x, player.pos.y, player.collision });
         _ = try engine.renderText(player_pos_str, eng.renderer, 32.0, engine.Color{
             .r = 255,
             .g = 255,
