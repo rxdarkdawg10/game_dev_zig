@@ -9,3 +9,10 @@ pub const Vec2 = struct {
         return .{ .x = x, .y = y };
     }
 };
+
+pub const Mat2 = struct {
+    tl: i32,
+    tr: i32,
+    bl: i32,
+    br: i32,
+};

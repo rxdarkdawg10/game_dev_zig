@@ -141,6 +141,14 @@ pub const Rect = struct {
     x: f32,
     y: f32,
 
+    pub fn getBounds(self: Rect) utils.Mat2 {
+        // const h: i32 = @intFromFloat(self.h);
+        const w: i32 = @intFromFloat(self.w);
+        const x: i32 = @intFromFloat(self.x);
+        const y: i32 = @intFromFloat(self.y);
+        return .{ .bl = y, .br = y + w, .tl = x, .tr = x + w };
+    }
+
     fn to_sdl(self: Rect) sdl.SDL_FRect {
         return sdl.SDL_FRect{ .h = self.h, .w = self.w, .x = self.x, .y = self.y };
     }

@@ -31,12 +31,12 @@ pub const World1 = struct {
     }
 
     pub fn draw(self: *World1, eng: *graphics.Engine, camera_pos: utils.Vec2, dt: f32) !void {
-        _ = camera_pos;
         _ = dt;
 
         for (self.entities.items) |entity| {
+            const rect: graphics.Rect = .{ .h = entity.h, .w = entity.w, .x = entity.x - camera_pos.x, .y = entity.y - camera_pos.y };
             _ = eng.setRenderDrawColor(graphics.Color{ .r = 0, .g = 0, .b = 0, .a = 255 });
-            _ = eng.renderFillRect(entity);
+            _ = eng.renderFillRect(rect);
         }
     }
 };

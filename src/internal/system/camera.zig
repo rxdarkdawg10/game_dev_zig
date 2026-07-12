@@ -1,5 +1,6 @@
 const std = @import("std");
 const utils = @import("../helpers/utils.zig");
+const graphics = @import("../graphics/engine.zig");
 
 pub const Camera = struct {
     pos: utils.Vec2,
@@ -16,7 +17,7 @@ pub const Camera = struct {
         };
     }
 
-    pub fn update(self: *Camera, player_pos: utils.Vec2, dt: f32) void {
+    pub fn update(self: *Camera, player_pos: graphics.Rect, dt: f32) void {
         const targetX = player_pos.x - (800.0 / 2.0);
         const targetY = player_pos.y - (600.0 / 2.0);
 

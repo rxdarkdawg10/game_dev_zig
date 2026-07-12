@@ -57,7 +57,7 @@ pub fn main(init: std.process.Init) !void {
         // Draw Game Elements
         eng.setClearColor(engine.Color.init(33, 33, 43, 255)); // <- Base Background Color
         _ = try world1.draw(&eng, camera.pos, @floatCast(deltaTime));
-        _ = camera.update(player.pos, @floatCast(deltaTime));
+        _ = camera.update(player.rect, @floatCast(deltaTime));
         _ = player.draw(&eng, camera.pos, @floatCast(deltaTime));
 
         const fps = try eng.getFPS(1.0 / deltaTime, arena);
@@ -71,7 +71,7 @@ pub fn main(init: std.process.Init) !void {
             .y = 0.0,
         });
 
-        const player_pos_str = try std.fmt.allocPrint(arena, "POS X: {d:.0} POS: Y: {d:.0}, Collision: {}", .{ player.pos.x, player.pos.y, player.collision });
+        const player_pos_str = try std.fmt.allocPrint(arena, "POS X: {d:.0} POS: Y: {d:.0}, Collision: {}", .{ player.rect.x, player.rect.y, player.collision });
         _ = try engine.renderText(player_pos_str, eng.renderer, 32.0, engine.Color{
             .r = 255,
             .g = 255,
