@@ -18,7 +18,7 @@ pub const Player = struct {
         return .{
             .t = true,
             .velocity = 0.0,
-            .speed = 100,
+            .speed = 200,
             .gravity = 5,
             .is_grounded = false,
             .jump_strength = -5.0,
@@ -62,6 +62,7 @@ pub const Player = struct {
             self.velocity = 0.0;
             self.is_grounded = true;
         } else {
+            self.is_grounded = false;
             self.velocity = self.velocity + (self.gravity * dt);
             self.rect.y = self.rect.y + (self.velocity);
         }
