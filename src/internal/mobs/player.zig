@@ -19,7 +19,7 @@ pub const Player = struct {
             .t = true,
             .velocity = 0.0,
             .speed = 200,
-            .gravity = 5,
+            .gravity = 10.0,
             .is_grounded = false,
             .jump_strength = -5.0,
             .collision = .{ false, graphics.Rect{ .h = 0, .w = 0, .x = 0, .y = 0 } },
@@ -28,9 +28,7 @@ pub const Player = struct {
     }
 
     pub fn update(self: *Player, eng: *graphics.Engine, entities: *std.ArrayList(graphics.Rect), dt: f32) void {
-        for (entities.items) |entity| {
-            self.collision = check_collision(self, entity);
-        }
+
         // Player Movement
         if (eng.getKeyPress(graphics.KEYS.KEY_W)) {
             self.rect.y = self.rect.y - (self.speed * dt);
@@ -50,6 +48,10 @@ pub const Player = struct {
             self.is_grounded = false;
             self.velocity = self.jump_strength;
         }
+
+        for (entities.items) |entity| {
+            self.collision = check_collision(self, entity);
+        }
     }
 
     pub fn draw(self: *Player, eng: *graphics.Engine, camera_pos: utils.Vec2, dt: f32) void {
@@ -61,6 +63,7 @@ pub const Player = struct {
         if (self.collision.@"0") {
             self.velocity = 0.0;
             self.is_grounded = true;
+            self.rect.y = self.collision.@"1".y - self.rect.h;
         } else {
             self.is_grounded = false;
             self.velocity = self.velocity + (self.gravity * dt);
@@ -69,24 +72,18 @@ pub const Player = struct {
     }
 
     fn check_collision(self: *Player, entity: graphics.Rect) struct { bool, graphics.Rect } {
-        // std.debug.print("ENTITY: {}\nPLAYER:{}\n\n", .{
-        //     entity,
-
-        //     self.rect,
-        // });
-
         var checkRight = false;
         var checkBottom = false;
         var checkLeft = false;
-        std.debug.print("Right: {}\n", .{@round(self.rect.x + self.rect.w)});
+
         if (@round(self.rect.x + self.rect.w) >= entity.x) {
             checkRight = true;
         }
-        std.debug.print("Bottom: {}\n\n", .{@round(self.rect.y + self.rect.h)});
+
         if (@round(self.rect.y + self.rect.h) >= entity.y and @round(self.rect.y + self.rect.h) <= entity.y + entity.h) {
             checkBottom = true;
         }
-        std.debug.print("Left: {}\n\n", .{self.rect.x});
+
         if (self.rect.x <= @round(entity.x + entity.w)) {
             checkLeft = true;
         }
