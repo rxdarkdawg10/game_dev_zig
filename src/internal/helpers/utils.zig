@@ -1,5 +1,4 @@
 const std = @import("std");
-const sdl = @import("../graphics/sdl.zig").c;
 
 pub const Vec2 = struct {
     x: f32,
