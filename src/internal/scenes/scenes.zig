@@ -3,7 +3,20 @@ const graphics = @import("../graphics/engine.zig");
 const utils = @import("../helpers/utils.zig");
 
 pub const SCENETYPES = enum {
+    TITLE,
     WORLD1,
+};
+
+pub const Menu = struct {
+    _t: SCENETYPES,
+    allocator: std.mem.Allocator,
+
+    pub fn init(scene_type: SCENETYPES, alloc: std.mem.Allocator) !Menu {
+        return Menu{
+            ._t = scene_type,
+            .allocator = alloc,
+        };
+    }
 };
 
 pub const World1 = struct {

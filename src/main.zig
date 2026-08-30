@@ -25,12 +25,13 @@ pub fn main(init: std.process.Init) !void {
 
     _ = try eng.loadTexture("assets/sprites/spritesheet.png");
     defer eng.destroyTexture();
-    const gameState = game.GameState.init();
+    var gameState = game.GameState.init();
     var player = user.init();
     var camera = cam.init(0.0, 0.0, 800.0, 600.0);
     var world1 = try scenes.World1.init(scenes.SCENETYPES.WORLD1, arena);
+    const menu = try scenes.Menu.init(scenes.SCENETYPES.TITLE, arena);
 
-    _ = gameState;
+    gameState.currentWorld = menu._t;
     // 3. Main Loop
 
     // Delta Time
@@ -47,59 +48,66 @@ pub fn main(init: std.process.Init) !void {
 
         // Poll Events
         while (eng.pollEvents()) {
-            eng.handleEvents();
+            eng.handleEvents(&gameState);
         }
 
         // Update Game Elements
-        world1.update(&eng, @floatCast(deltaTime));
-        player.update(&eng, &world1.entities, @floatCast(deltaTime));
+        switch (gameState.currentWorld) {
+            .TITLE => {
+                eng.setClearColor(engine.Color.init(33, 33, 43, 255)); // <- Base Background Color
+            },
+            .WORLD1 => {
+                world1.update(&eng, @floatCast(deltaTime));
+                player.update(&eng, &world1.entities, @floatCast(deltaTime));
 
-        // Draw Game Elements
-        eng.setClearColor(engine.Color.init(33, 33, 43, 255)); // <- Base Background Color
-        _ = try world1.draw(&eng, camera.pos, @floatCast(deltaTime));
-        _ = camera.update(player.rect, @floatCast(deltaTime));
-        _ = player.draw(&eng, camera.pos, @floatCast(deltaTime));
+                // Draw Game Elements
+                eng.setClearColor(engine.Color.init(33, 33, 43, 255)); // <- Base Background Color
+                _ = try world1.draw(&eng, camera.pos, @floatCast(deltaTime));
+                _ = camera.update(player.rect, @floatCast(deltaTime));
+                _ = player.draw(&eng, camera.pos, @floatCast(deltaTime));
 
-        const fps = try eng.getFPS(1.0 / deltaTime, arena);
-        _ = try engine.renderText(fps, eng.renderer, 32.0, engine.Color{
-            .r = 255,
-            .g = 255,
-            .b = 255,
-            .a = 255,
-        }, utils.Vec2{
-            .x = 0.0,
-            .y = 0.0,
-        });
+                const fps = try eng.getFPS(1.0 / deltaTime, arena);
+                _ = try engine.renderText(fps, eng.renderer, 32.0, engine.Color{
+                    .r = 255,
+                    .g = 255,
+                    .b = 255,
+                    .a = 255,
+                }, utils.Vec2{
+                    .x = 0.0,
+                    .y = 0.0,
+                });
 
-        const player_pos_str = try std.fmt.allocPrint(arena, "POS X: {d:.0} POS: Y: {d:.0}, Collision: {}", .{ player.rect.x, player.rect.y, player.collision });
-        _ = try engine.renderText(player_pos_str, eng.renderer, 32.0, engine.Color{
-            .r = 255,
-            .g = 255,
-            .b = 255,
-            .a = 255,
-        }, utils.Vec2{
-            .x = 0.0,
-            .y = 32.0,
-        });
-        // for (0..5) |i| {
-        //     const val: i32 = @intCast(i);
-        //     var x: f32 = @floatFromInt(val);
-        //     x = x * 32.0;
-        //     _ = try utils.renderSpritesheet(eng.renderer, eng.texture, utils.Vec2{
-        //         .x = x,
-        //         .y = 0.0,
-        //     }, 4, utils.Vec2{
-        //         .x = 150.0 + (x * 4),
-        //         .y = 50.0,
-        //     });
-        // }
-        _ = try engine.renderSpritesheet(eng.renderer, eng.texture, utils.Vec2{
-            .x = 0.0,
-            .y = 0.0,
-        }, 2, utils.Vec2{
-            .x = 800.0 - 16.0,
-            .y = 0.0,
-        });
+                const player_pos_str = try std.fmt.allocPrint(arena, "POS X: {d:.0} POS: Y: {d:.0}, Collision: {}", .{ player.rect.x, player.rect.y, player.collision });
+                _ = try engine.renderText(player_pos_str, eng.renderer, 32.0, engine.Color{
+                    .r = 255,
+                    .g = 255,
+                    .b = 255,
+                    .a = 255,
+                }, utils.Vec2{
+                    .x = 0.0,
+                    .y = 32.0,
+                });
+                // for (0..5) |i| {
+                //     const val: i32 = @intCast(i);
+                //     var x: f32 = @floatFromInt(val);
+                //     x = x * 32.0;
+                //     _ = try utils.renderSpritesheet(eng.renderer, eng.texture, utils.Vec2{
+                //         .x = x,
+                //         .y = 0.0,
+                //     }, 4, utils.Vec2{
+                //         .x = 150.0 + (x * 4),
+                //         .y = 50.0,
+                //     });
+                // }
+                _ = try engine.renderSpritesheet(eng.renderer, eng.texture, utils.Vec2{
+                    .x = 0.0,
+                    .y = 0.0,
+                }, 2, utils.Vec2{
+                    .x = 800.0 - 16.0,
+                    .y = 0.0,
+                });
+            },
+        }
 
         var frameTimer = deltaTime * 1000.0;
         frameCount = frameCount + 1;

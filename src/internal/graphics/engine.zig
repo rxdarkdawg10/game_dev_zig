@@ -1,6 +1,8 @@
 const std = @import("std");
 const utils = @import("../helpers/utils.zig");
 const sdl = @import("../graphics/sdl.zig").c;
+const SCENETYPES = @import("../scenes/scenes.zig").SCENETYPES;
+const gamestate = @import("../system/game.zig").GameState;
 
 pub const Engine = struct {
     window: ?*sdl.SDL_Window = null,
@@ -57,20 +59,34 @@ pub const Engine = struct {
         return sdl.SDL_PollEvent(&self.events);
     }
 
-    pub fn handleEvents(self: *Engine) void {
+    pub fn handleEvents(self: *Engine, state: *gamestate) void {
         if (self.events.type == sdl.SDL_EVENT_QUIT) {
             self.quit_game = true;
         }
 
-        if (self.events.type == sdl.SDL_EVENT_KEY_UP) {
-            if (self.events.key.scancode == sdl.SDL_SCANCODE_F11) {
-                self.is_fullscreen = !self.is_fullscreen;
-                _ = sdl.SDL_SetWindowFullscreen(self.window, self.is_fullscreen);
-                _ = sdl.SDL_SyncWindow(self.window);
-            }
-            if (self.events.key.scancode == sdl.SDL_SCANCODE_ESCAPE) {
-                self.quit_game = true;
-            }
+        switch (state.currentWorld) {
+            .TITLE => {
+                if (self.events.key.scancode == sdl.SDL_SCANCODE_ESCAPE) {
+                    std.debug.print("QUIT = TRUE\n", .{});
+                    self.quit_game = true;
+                }
+
+                if (self.events.key.scancode == sdl.SDL_SCANCODE_RETURN) {
+                    state.currentWorld = SCENETYPES.WORLD1;
+                }
+            },
+            .WORLD1 => {
+                if (self.events.type == sdl.SDL_EVENT_KEY_UP) {
+                    if (self.events.key.scancode == sdl.SDL_SCANCODE_F11) {
+                        self.is_fullscreen = !self.is_fullscreen;
+                        _ = sdl.SDL_SetWindowFullscreen(self.window, self.is_fullscreen);
+                        _ = sdl.SDL_SyncWindow(self.window);
+                    }
+                    if (self.events.key.scancode == sdl.SDL_SCANCODE_ESCAPE) {
+                        state.currentWorld = SCENETYPES.TITLE;
+                    }
+                }
+            },
         }
     }
 
