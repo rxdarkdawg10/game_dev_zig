@@ -12,19 +12,22 @@ pub const Engine = struct {
     keystate: [*c]const bool = undefined,
     quit_game: bool = false,
     is_fullscreen: bool = false,
+    window_size: utils.Vec2,
 
-    pub fn init() anyerror!Engine {
+    pub fn init(size: utils.Vec2) anyerror!Engine {
         // 1. Init Video
         if (!sdl.SDL_Init(sdl.SDL_INIT_VIDEO)) {
             std.log.err("SDL Init Failed: {s}", .{sdl.SDL_GetError()});
             return error.SdlInitFailed;
         }
 
-        return Engine{};
+        return Engine{
+            .window_size = size,
+        };
     }
 
     pub fn createWindowAndRenderer(self: *Engine) anyerror!void {
-        if (!sdl.SDL_CreateWindowAndRenderer("Game Dev", 800, 600, 0, &self.window, &self.renderer)) {
+        if (!sdl.SDL_CreateWindowAndRenderer("Game Dev", @intFromFloat(self.window_size.x), @intFromFloat(self.window_size.y), 0, &self.window, &self.renderer)) {
             std.log.err("Failed to create Window & Renderer: {s}", .{sdl.SDL_GetError()});
             return error.SdlWindowCreationFailed;
         }

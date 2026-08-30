@@ -16,7 +16,7 @@ pub fn main(init: std.process.Init) !void {
         std.log.info("arg: {s}", .{arg});
     }
 
-    var eng = try engine.Engine.init();
+    var eng = try engine.Engine.init(.{ .x = 800, .y = 600 });
     defer eng.quit();
 
     const frameCap: f64 = 1000.0 / 60.0;
@@ -29,7 +29,7 @@ pub fn main(init: std.process.Init) !void {
     var player = user.init();
     var camera = cam.init(0.0, 0.0, 800.0, 600.0);
     var world1 = try scenes.World1.init(scenes.SCENETYPES.WORLD1, arena);
-    const menu = try scenes.Menu.init(scenes.SCENETYPES.TITLE, arena);
+    var menu = try scenes.Menu.init(scenes.SCENETYPES.TITLE, arena);
 
     gameState.currentWorld = menu._t;
     // 3. Main Loop
@@ -55,6 +55,8 @@ pub fn main(init: std.process.Init) !void {
         switch (gameState.currentWorld) {
             .TITLE => {
                 eng.setClearColor(engine.Color.init(33, 33, 43, 255)); // <- Base Background Color
+
+                _ = try menu.draw(&eng, @floatCast(deltaTime));
             },
             .WORLD1 => {
                 world1.update(&eng, @floatCast(deltaTime));
