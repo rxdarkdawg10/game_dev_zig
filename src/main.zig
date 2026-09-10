@@ -1,6 +1,7 @@
 const std = @import("std");
 const user = @import("internal/mobs/player.zig").Player;
 const cam = @import("internal/system/camera.zig").Camera;
+const ui_sys = @import("internal/ui/ui.zig").UI;
 const utils = @import("internal/helpers/utils.zig");
 const engine = @import("internal/graphics/engine.zig");
 const game = @import("internal/system/game.zig");
@@ -10,6 +11,7 @@ const sdl = @import("internal/graphics/sdl.zig").c;
 
 pub fn main(init: std.process.Init) !void {
     const arena: std.mem.Allocator = init.arena.allocator();
+    const io = init.io;
 
     const args = try init.minimal.args.toSlice(arena);
     for (args) |arg| {
@@ -26,6 +28,7 @@ pub fn main(init: std.process.Init) !void {
     _ = try eng.loadTexture("assets/sprites/spritesheet.png");
     defer eng.destroyTexture();
     var gameState = game.GameState.init();
+    var ui = ui_sys.new(io, arena);
     var player = user.init();
     var camera = cam.init(0.0, 0.0, 800.0, 600.0);
     var world1 = try scenes.World1.init(scenes.SCENETYPES.WORLD1, arena);
@@ -57,6 +60,7 @@ pub fn main(init: std.process.Init) !void {
                 eng.setClearColor(engine.Color.init(33, 33, 43, 255)); // <- Base Background Color
 
                 _ = try menu.draw(&eng, @floatCast(deltaTime));
+                _ = try ui.draw();
             },
             .WORLD1 => {
                 world1.update(&eng, @floatCast(deltaTime));

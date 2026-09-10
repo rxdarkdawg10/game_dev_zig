@@ -1,0 +1,12 @@
+{
+  "elemtype": "button",
+  "object": {
+    "text": "hello world",
+    "width": 300,
+    "height": 100,
+    "pos": {
+      "x": 10.0,
+      "y": 10.0
+    }
+  }
+}
