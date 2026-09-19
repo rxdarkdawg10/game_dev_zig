@@ -10,13 +10,23 @@ const Io = std.Io;
 const sdl = @import("internal/graphics/sdl.zig").c;
 
 pub fn main(init: std.process.Init) !void {
-    const arena: std.mem.Allocator = init.arena.allocator();
+    // const arena: std.mem.Allocator = init.arena.allocator();
+
+    var gpa = std.heap.DebugAllocator(.{}){};
+
+    defer {
+        const check_gpa = gpa.deinit();
+        if (check_gpa == .leak) {
+            std.log.err("Memory leak detected!", .{});
+        }
+    }
     const io = init.io;
 
-    const args = try init.minimal.args.toSlice(arena);
+    const args = try init.minimal.args.toSlice(gpa.allocator());
     for (args) |arg| {
         std.log.info("arg: {s}", .{arg});
     }
+    defer gpa.allocator().free(args);
 
     var eng = try engine.Engine.init(.{ .x = 800, .y = 600 });
     defer eng.quit();
@@ -28,12 +38,15 @@ pub fn main(init: std.process.Init) !void {
     _ = try eng.loadTexture("assets/sprites/spritesheet.png");
     defer eng.destroyTexture();
     var gameState = game.GameState.init();
-    var ui = ui_sys.new(io, arena);
+    var ui = ui_sys.new(io, gpa.allocator());
+
     var player = user.init();
     var camera = cam.init(0.0, 0.0, 800.0, 600.0);
-    var world1 = try scenes.World1.init(scenes.SCENETYPES.WORLD1, arena);
-    var menu = try scenes.Menu.init(scenes.SCENETYPES.TITLE, arena);
+    var world1 = try scenes.World1.init(scenes.SCENETYPES.WORLD1, gpa.allocator());
+    defer world1.deinit();
 
+    var menu = try scenes.Menu.init(scenes.SCENETYPES.TITLE, gpa.allocator(), &ui);
+    defer menu.deinit();
     gameState.currentWorld = menu._t;
     // 3. Main Loop
 
@@ -60,7 +73,6 @@ pub fn main(init: std.process.Init) !void {
                 eng.setClearColor(engine.Color.init(33, 33, 43, 255)); // <- Base Background Color
 
                 _ = try menu.draw(&eng, @floatCast(deltaTime));
-                _ = try ui.draw();
             },
             .WORLD1 => {
                 world1.update(&eng, @floatCast(deltaTime));
@@ -72,7 +84,7 @@ pub fn main(init: std.process.Init) !void {
                 _ = camera.update(player.rect, @floatCast(deltaTime));
                 _ = player.draw(&eng, camera.pos, @floatCast(deltaTime));
 
-                const fps = try eng.getFPS(1.0 / deltaTime, arena);
+                const fps = try eng.getFPS(1.0 / deltaTime, gpa.allocator());
                 _ = try engine.renderText(fps, eng.renderer, 32.0, engine.Color{
                     .r = 255,
                     .g = 255,
@@ -83,7 +95,7 @@ pub fn main(init: std.process.Init) !void {
                     .y = 0.0,
                 });
 
-                const player_pos_str = try std.fmt.allocPrint(arena, "POS X: {d:.0} POS: Y: {d:.0}, Collision: {}", .{ player.rect.x, player.rect.y, player.collision });
+                const player_pos_str = try std.fmt.allocPrint(gpa.allocator(), "POS X: {d:.0} POS: Y: {d:.0}, Collision: {}", .{ player.rect.x, player.rect.y, player.collision });
                 _ = try engine.renderText(player_pos_str, eng.renderer, 32.0, engine.Color{
                     .r = 255,
                     .g = 255,

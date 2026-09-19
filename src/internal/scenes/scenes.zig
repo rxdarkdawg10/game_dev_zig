@@ -1,6 +1,8 @@
 const std = @import("std");
 const graphics = @import("../graphics/engine.zig");
 const utils = @import("../helpers/utils.zig");
+const ui = @import("../ui/ui.zig");
+const ent = @import("../entities/entities.zig");
 
 pub const SCENETYPES = enum {
     TITLE,
@@ -9,13 +11,15 @@ pub const SCENETYPES = enum {
 
 pub const Menu = struct {
     _t: SCENETYPES,
-    entities: std.ArrayList(graphics.Rect),
+    entities: std.ArrayList(ent.Entity),
     allocator: std.mem.Allocator,
 
-    pub fn init(scene_type: SCENETYPES, alloc: std.mem.Allocator) !Menu {
-        var entities = std.ArrayList(graphics.Rect).empty;
+    pub fn init(scene_type: SCENETYPES, alloc: std.mem.Allocator, uiloader: *ui.UI) !Menu {
+        var entities = std.ArrayList(ent.Entity).empty;
         const rect: graphics.Rect = .{ .h = 50.0, .w = 800.0, .x = 0.0, .y = 300.0 };
-        _ = try entities.append(alloc, rect);
+        _ = try entities.append(alloc, ent.Entity{ .object = rect, .has_text = false, .text = "" });
+
+        _ = try uiloader.load("file.txt", &entities);
 
         return Menu{
             ._t = scene_type,
@@ -38,10 +42,26 @@ pub const Menu = struct {
         });
 
         for (self.entities.items) |entity| {
-            const rect: graphics.Rect = .{ .h = entity.h, .w = entity.w, .x = entity.x, .y = entity.y };
+            const rect: graphics.Rect = .{ .h = entity.object.h, .w = entity.object.w, .x = entity.object.x, .y = entity.object.y };
             _ = eng.setRenderDrawColor(graphics.Color{ .r = 0, .g = 0, .b = 0, .a = 255 });
             _ = eng.renderFillRect(rect);
+            if (entity.has_text) {
+                // std.debug.print("{s}\n", .{entity.text});
+                _ = try graphics.renderText(entity.text, eng.renderer, 32.0, graphics.Color{
+                    .r = 255,
+                    .g = 255,
+                    .b = 255,
+                    .a = 255,
+                }, utils.Vec2{
+                    .x = entity.object.x + (entity.object.w / 2),
+                    .y = entity.object.y + (entity.object.h / 2),
+                });
+            }
         }
+    }
+
+    pub fn deinit(self: *Menu) void {
+        self.entities.deinit(self.allocator);
     }
 };
 
@@ -77,5 +97,9 @@ pub const World1 = struct {
             _ = eng.setRenderDrawColor(graphics.Color{ .r = 0, .g = 0, .b = 0, .a = 255 });
             _ = eng.renderFillRect(rect);
         }
+    }
+
+    pub fn deinit(self: *World1) void {
+        self.entities.deinit(self.allocator);
     }
 };
