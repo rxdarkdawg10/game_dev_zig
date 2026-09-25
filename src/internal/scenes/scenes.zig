@@ -12,14 +12,14 @@ pub const SCENETYPES = enum {
 pub const Menu = struct {
     _t: SCENETYPES,
     entities: std.ArrayList(ent.Entity),
-    allocator: std.mem.Allocator,
+    allocator: *std.mem.Allocator,
 
-    pub fn init(scene_type: SCENETYPES, alloc: std.mem.Allocator, uiloader: *ui.UI) !Menu {
+    pub fn init(scene_type: SCENETYPES, alloc: *std.mem.Allocator, uiloader: *ui.UI) !Menu {
         var entities = std.ArrayList(ent.Entity).empty;
         const rect: graphics.Rect = .{ .h = 50.0, .w = 800.0, .x = 0.0, .y = 300.0 };
-        _ = try entities.append(alloc, ent.Entity{ .object = rect, .has_text = false, .text = "" });
+        _ = try entities.append(alloc.*, ent.Entity{ .object = rect, .has_text = false, .text = "" });
 
-        _ = try uiloader.load("file.txt", &entities);
+        _ = try uiloader.load("file.txt", &entities, alloc);
 
         return Menu{
             ._t = scene_type,
@@ -61,7 +61,10 @@ pub const Menu = struct {
     }
 
     pub fn deinit(self: *Menu) void {
-        self.entities.deinit(self.allocator);
+        for (self.entities.items) |item| {
+            self.allocator.*.free(item.text);
+        }
+        self.entities.deinit(self.allocator.*);
     }
 };
 

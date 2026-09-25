@@ -28,6 +28,8 @@ pub fn main(init: std.process.Init) !void {
     }
     defer gpa.allocator().free(args);
 
+    var allocator = gpa.allocator();
+
     var eng = try engine.Engine.init(.{ .x = 800, .y = 600 });
     defer eng.quit();
 
@@ -39,13 +41,14 @@ pub fn main(init: std.process.Init) !void {
     defer eng.destroyTexture();
     var gameState = game.GameState.init();
     var ui = ui_sys.new(io, gpa.allocator());
+    defer ui.deinit();
 
     var player = user.init();
     var camera = cam.init(0.0, 0.0, 800.0, 600.0);
     var world1 = try scenes.World1.init(scenes.SCENETYPES.WORLD1, gpa.allocator());
     defer world1.deinit();
 
-    var menu = try scenes.Menu.init(scenes.SCENETYPES.TITLE, gpa.allocator(), &ui);
+    var menu = try scenes.Menu.init(scenes.SCENETYPES.TITLE, &allocator, &ui);
     defer menu.deinit();
     gameState.currentWorld = menu._t;
     // 3. Main Loop

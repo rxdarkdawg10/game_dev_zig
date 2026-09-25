@@ -13,9 +13,10 @@ pub const Button = struct {
     },
 };
 
-pub fn new(elem: Button, _: std.mem.Allocator) ent.Entity {
+pub fn new(elem: Button, alloc: std.mem.Allocator) !ent.Entity {
+    const dupe_text = try alloc.dupe(u8, elem.object.text);
     const rect: graphics.Rect = .{ .h = @floatFromInt(elem.object.height), .w = @floatFromInt(elem.object.width), .x = elem.object.pos.x, .y = elem.object.pos.y };
-    const entity = ent.Entity{ .has_text = true, .object = rect, .text = "test" };
+    const entity = ent.Entity{ .has_text = true, .object = rect, .text = dupe_text };
 
     return entity;
 }

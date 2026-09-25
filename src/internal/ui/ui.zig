@@ -14,7 +14,7 @@ pub const UI = struct {
         return .{ .io = io, .alloc = alloc };
     }
 
-    pub fn load(self: UI, filename: []const u8, entities: *std.ArrayList(ent.Entity)) !void {
+    pub fn load(self: UI, filename: []const u8, entities: *std.ArrayList(ent.Entity), allocator: *std.mem.Allocator) !void {
         var buffer: [1024]u8 = undefined;
         const file = try loadUIFromFile(filename, self.io, &buffer);
 
@@ -23,15 +23,20 @@ pub const UI = struct {
 
         if (std.mem.eql(u8, peak.value.elemtype, "button")) {
             const elem = try std.json.parseFromSlice(btntype.Button, self.alloc, file, .{ .ignore_unknown_fields = true });
+            // _ = try self.parsed_elems.append(self.alloc, elem);
             defer elem.deinit();
-            const button: ent.Entity = btntype.new(.{ .elemtype = elem.value.elemtype, .object = .{
+            const button: ent.Entity = try btntype.new(.{ .elemtype = elem.value.elemtype, .object = .{
                 .height = elem.value.object.height,
                 .width = elem.value.object.width,
                 .pos = elem.value.object.pos,
                 .text = elem.value.object.text,
-            } }, self.alloc);
-            _ = try entities.append(self.alloc, button);
+            } }, allocator.*);
+            _ = try entities.append(allocator.*, button);
         }
+    }
+
+    pub fn deinit(_: UI) void {
+        // self.parsed_elems.deinit(self.alloc);
     }
 };
 
