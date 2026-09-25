@@ -12,7 +12,7 @@ pub const SCENETYPES = enum {
 pub const Menu = struct {
     _t: SCENETYPES,
     entities: std.ArrayList(ent.Entity),
-    allocator: *std.mem.Allocator,
+    allocator: std.mem.Allocator,
 
     pub fn init(scene_type: SCENETYPES, alloc: std.mem.Allocator, uiloader: *ui.UI) !Menu {
         var entities = std.ArrayList(ent.Entity).empty;
@@ -53,7 +53,7 @@ pub const Menu = struct {
                     .b = 255,
                     .a = 255,
                 }, utils.Vec2{
-                    .x = entity.object.x + (entity.object.w / 2),
+                    .x = entity.object.x + (entity.object.w / 3),
                     .y = entity.object.y + (entity.object.h / 2),
                 });
             }
@@ -62,9 +62,9 @@ pub const Menu = struct {
 
     pub fn deinit(self: *Menu) void {
         for (self.entities.items) |item| {
-            self.allocator.*.free(item.text);
+            self.allocator.free(item.text);
         }
-        self.entities.deinit(self.allocator.*);
+        self.entities.deinit(self.allocator);
     }
 };
 
