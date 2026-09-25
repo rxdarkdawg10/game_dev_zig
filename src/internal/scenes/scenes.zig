@@ -14,10 +14,10 @@ pub const Menu = struct {
     entities: std.ArrayList(ent.Entity),
     allocator: *std.mem.Allocator,
 
-    pub fn init(scene_type: SCENETYPES, alloc: *std.mem.Allocator, uiloader: *ui.UI) !Menu {
+    pub fn init(scene_type: SCENETYPES, alloc: std.mem.Allocator, uiloader: *ui.UI) !Menu {
         var entities = std.ArrayList(ent.Entity).empty;
         const rect: graphics.Rect = .{ .h = 50.0, .w = 800.0, .x = 0.0, .y = 300.0 };
-        _ = try entities.append(alloc.*, ent.Entity{ .object = rect, .has_text = false, .text = "" });
+        _ = try entities.append(alloc, ent.Entity{ .object = rect, .has_text = false, .text = "" });
 
         _ = try uiloader.load("file.txt", &entities);
 

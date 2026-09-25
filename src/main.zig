@@ -13,6 +13,7 @@ pub fn main(init: std.process.Init) !void {
     // const arena: std.mem.Allocator = init.arena.allocator();
 
     var gpa = std.heap.DebugAllocator(.{}){};
+    const allocator = gpa.allocator();
 
     defer {
         const check_gpa = gpa.deinit();
@@ -22,13 +23,11 @@ pub fn main(init: std.process.Init) !void {
     }
     const io = init.io;
 
-    const args = try init.minimal.args.toSlice(gpa.allocator());
+    const args = try init.minimal.args.toSlice(allocator);
     for (args) |arg| {
         std.log.info("arg: {s}", .{arg});
     }
-    defer gpa.allocator().free(args);
-
-    var allocator = gpa.allocator();
+    defer allocator.free(args);
 
     var eng = try engine.Engine.init(.{ .x = 800, .y = 600 });
     defer eng.quit();
@@ -40,15 +39,15 @@ pub fn main(init: std.process.Init) !void {
     _ = try eng.loadTexture("assets/sprites/spritesheet.png");
     defer eng.destroyTexture();
     var gameState = game.GameState.init();
-    var ui = ui_sys.new(io, gpa.allocator());
+    var ui = ui_sys.new(io, allocator);
     defer ui.deinit();
 
     var player = user.init();
     var camera = cam.init(0.0, 0.0, 800.0, 600.0);
-    var world1 = try scenes.World1.init(scenes.SCENETYPES.WORLD1, gpa.allocator());
+    var world1 = try scenes.World1.init(scenes.SCENETYPES.WORLD1, allocator);
     defer world1.deinit();
 
-    var menu = try scenes.Menu.init(scenes.SCENETYPES.TITLE, &allocator, &ui);
+    var menu = try scenes.Menu.init(scenes.SCENETYPES.TITLE, allocator, &ui);
     defer menu.deinit();
     gameState.currentWorld = menu._t;
     // 3. Main Loop
@@ -87,7 +86,7 @@ pub fn main(init: std.process.Init) !void {
                 _ = camera.update(player.rect, @floatCast(deltaTime));
                 _ = player.draw(&eng, camera.pos, @floatCast(deltaTime));
 
-                const fps = try eng.getFPS(1.0 / deltaTime, gpa.allocator());
+                const fps = try eng.getFPS(1.0 / deltaTime, allocator);
                 _ = try engine.renderText(fps, eng.renderer, 32.0, engine.Color{
                     .r = 255,
                     .g = 255,
@@ -98,7 +97,7 @@ pub fn main(init: std.process.Init) !void {
                     .y = 0.0,
                 });
 
-                const player_pos_str = try std.fmt.allocPrint(gpa.allocator(), "POS X: {d:.0} POS: Y: {d:.0}, Collision: {}", .{ player.rect.x, player.rect.y, player.collision });
+                const player_pos_str = try std.fmt.allocPrint(allocator, "POS X: {d:.0} POS: Y: {d:.0}, Collision: {}", .{ player.rect.x, player.rect.y, player.collision });
                 _ = try engine.renderText(player_pos_str, eng.renderer, 32.0, engine.Color{
                     .r = 255,
                     .g = 255,
