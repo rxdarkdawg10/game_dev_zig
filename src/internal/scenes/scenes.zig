@@ -19,7 +19,7 @@ pub const Menu = struct {
         const rect: graphics.Rect = .{ .h = 50.0, .w = 800.0, .x = 0.0, .y = 300.0 };
         _ = try entities.append(alloc.*, ent.Entity{ .object = rect, .has_text = false, .text = "" });
 
-        _ = try uiloader.load("file.txt", &entities, alloc);
+        _ = try uiloader.load("file.txt", &entities);
 
         return Menu{
             ._t = scene_type,

@@ -14,7 +14,7 @@ pub const UI = struct {
         return .{ .io = io, .alloc = alloc };
     }
 
-    pub fn load(self: UI, filename: []const u8, entities: *std.ArrayList(ent.Entity), allocator: *std.mem.Allocator) !void {
+    pub fn load(self: UI, filename: []const u8, entities: *std.ArrayList(ent.Entity)) !void {
         var buffer: [1024]u8 = undefined;
         const file = try loadUIFromFile(filename, self.io, &buffer);
 
@@ -30,8 +30,8 @@ pub const UI = struct {
                 .width = elem.value.object.width,
                 .pos = elem.value.object.pos,
                 .text = elem.value.object.text,
-            } }, allocator.*);
-            _ = try entities.append(allocator.*, button);
+            } }, self.alloc);
+            _ = try entities.append(self.alloc, button);
         }
     }
 
