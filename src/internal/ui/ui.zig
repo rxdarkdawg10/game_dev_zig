@@ -4,6 +4,7 @@ const ent = @import("../entities/entities.zig");
 
 const Element = struct {
     elemtype: []const u8,
+    object: std.json.Value,
 };
 
 pub const UI = struct {
@@ -18,20 +19,17 @@ pub const UI = struct {
         var buffer: [1024]u8 = undefined;
         const file = try loadUIFromFile(filename, self.io, &buffer);
 
-        const peak = try std.json.parseFromSlice(Element, self.alloc, file, .{ .ignore_unknown_fields = true });
+        const peak = try std.json.parseFromSlice([]Element, self.alloc, file, .{ .ignore_unknown_fields = true });
         defer peak.deinit();
 
-        if (std.mem.eql(u8, peak.value.elemtype, "button")) {
-            const elem = try std.json.parseFromSlice(btntype.Button, self.alloc, file, .{ .ignore_unknown_fields = true });
-            // _ = try self.parsed_elems.append(self.alloc, elem);
-            defer elem.deinit();
-            const button: ent.Entity = try btntype.new(.{ .elemtype = elem.value.elemtype, .object = .{
-                .height = elem.value.object.height,
-                .width = elem.value.object.width,
-                .pos = elem.value.object.pos,
-                .text = elem.value.object.text,
-            } }, self.alloc);
-            _ = try entities.append(self.alloc, button);
+        for (peak.value) |el| {
+            if (std.mem.eql(u8, el.elemtype, "button")) {
+                const elem = try std.json.parseFromValue(btntype.Button, self.alloc, el.object, .{ .ignore_unknown_fields = true });
+                defer elem.deinit();
+
+                const button: ent.Entity = try btntype.new(elem.value, self.alloc);
+                _ = try entities.append(self.alloc, button);
+            }
         }
     }
 
