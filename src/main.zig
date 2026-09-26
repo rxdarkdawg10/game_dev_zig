@@ -87,6 +87,8 @@ pub fn main(init: std.process.Init) !void {
                 _ = player.draw(&eng, camera.pos, @floatCast(deltaTime));
 
                 const fps = try eng.getFPS(1.0 / deltaTime, allocator);
+                defer allocator.free(fps);
+
                 _ = try engine.renderText(fps, eng.renderer, 32.0, engine.Color{
                     .r = 255,
                     .g = 255,
@@ -98,6 +100,7 @@ pub fn main(init: std.process.Init) !void {
                 });
 
                 const player_pos_str = try std.fmt.allocPrint(allocator, "POS X: {d:.0} POS: Y: {d:.0}, Collision: {}", .{ player.rect.x, player.rect.y, player.collision });
+                defer allocator.free(player_pos_str);
                 _ = try engine.renderText(player_pos_str, eng.renderer, 32.0, engine.Color{
                     .r = 255,
                     .g = 255,

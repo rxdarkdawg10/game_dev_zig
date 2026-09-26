@@ -128,7 +128,7 @@ pub const Engine = struct {
 
     pub fn getFPS(self: *Engine, fps: f64, alloc: std.mem.Allocator) anyerror![]const u8 {
         _ = self;
-        const float_str = try std.fmt.allocPrint(alloc, "FPS: {d:.2}", .{fps});
+        const float_str = try std.fmt.allocPrint(alloc, "FPS: {d:.0}", .{fps});
         return float_str;
     }
 

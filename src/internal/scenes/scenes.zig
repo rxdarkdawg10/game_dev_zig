@@ -47,7 +47,7 @@ pub const Menu = struct {
             _ = eng.renderFillRect(rect);
             if (entity.has_text) {
                 // std.debug.print("{s}\n", .{entity.text});
-                _ = try graphics.renderText(entity.text, eng.renderer, 32.0, graphics.Color{
+                _ = try graphics.renderText(entity.text, eng.renderer, entity.text_size, graphics.Color{
                     .r = 255,
                     .g = 255,
                     .b = 255,
