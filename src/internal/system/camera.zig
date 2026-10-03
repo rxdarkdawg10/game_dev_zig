@@ -1,5 +1,6 @@
 const std = @import("std");
 const utils = @import("../helpers/utils.zig");
+const game = @import("../system/game.zig");
 const graphics = @import("../graphics/engine.zig");
 
 pub const Camera = struct {
@@ -17,9 +18,14 @@ pub const Camera = struct {
         };
     }
 
+    pub fn draw(self: *Camera, state: *game.GameState) void {
+        self.width = @as(f32, @floatFromInt(state.window_size.width));
+        self.height = @as(f32, @floatFromInt(state.window_size.height));
+    }
+
     pub fn update(self: *Camera, player_pos: graphics.Rect, dt: f32) void {
-        const targetX = player_pos.x - (800.0 / 2.0);
-        const targetY = player_pos.y - (600.0 / 2.0);
+        const targetX = player_pos.x - (self.width / 2.0);
+        const targetY = player_pos.y - (self.height / 2.0);
 
         self.pos.x = self.lerp(self.pos.x, targetX, dt);
         self.pos.y = self.lerp(self.pos.y, targetY, dt);

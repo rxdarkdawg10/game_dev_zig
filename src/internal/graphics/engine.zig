@@ -81,9 +81,16 @@ pub const Engine = struct {
             .WORLD1 => {
                 if (self.events.type == sdl.SDL_EVENT_KEY_UP) {
                     if (self.events.key.scancode == sdl.SDL_SCANCODE_F11) {
+                        var h: i32 = 0;
+                        var w: i32 = 0;
                         self.is_fullscreen = !self.is_fullscreen;
                         _ = sdl.SDL_SetWindowFullscreen(self.window, self.is_fullscreen);
+
                         _ = sdl.SDL_SyncWindow(self.window);
+
+                        _ = sdl.SDL_GetWindowSize(self.window, &w, &h);
+                        state.window_size.height = @intCast(h);
+                        state.window_size.width = @intCast(w);
                     }
                     if (self.events.key.scancode == sdl.SDL_SCANCODE_ESCAPE) {
                         state.currentWorld = SCENETYPES.TITLE;

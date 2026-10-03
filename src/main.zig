@@ -39,11 +39,12 @@ pub fn main(init: std.process.Init) !void {
     _ = try eng.loadTexture("assets/sprites/spritesheet.png");
     defer eng.destroyTexture();
     var gameState = game.GameState.init();
+    gameState.window_size = .{ .width = 800, .height = 600 };
     var ui = ui_sys.new(io, allocator);
     defer ui.deinit();
 
     var player = user.init();
-    var camera = cam.init(0.0, 0.0, 800.0, 600.0);
+    var camera = cam.init(0.0, 0.0, @as(f32, @floatFromInt(gameState.window_size.width)), @as(f32, @floatFromInt(gameState.window_size.height)));
     var world1 = try scenes.World1.init(scenes.SCENETYPES.WORLD1, allocator);
     defer world1.deinit();
 
@@ -77,6 +78,7 @@ pub fn main(init: std.process.Init) !void {
                 _ = try menu.draw(&eng, @floatCast(deltaTime));
             },
             .WORLD1 => {
+                _ = camera.draw(&gameState);
                 world1.update(&eng, @floatCast(deltaTime));
                 player.update(&eng, &world1.entities, @floatCast(deltaTime));
 
@@ -126,7 +128,7 @@ pub fn main(init: std.process.Init) !void {
                     .x = 0.0,
                     .y = 0.0,
                 }, 2, utils.Vec2{
-                    .x = 800.0 - 16.0,
+                    .x = @as(f32, @floatFromInt(gameState.window_size.width)) - 16.0,
                     .y = 0.0,
                 });
             },
